@@ -1,6 +1,7 @@
 stages:
     - build
     - test
+    - clean
 
 build:
     stage: build
@@ -15,3 +16,8 @@ test:
     stage: test
     script:
         - make test
+
+down:
+    stage: clean
+    script:
+        - make down

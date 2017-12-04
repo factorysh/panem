@@ -12,10 +12,13 @@ services:
         image: bearstech/python-dev:3
         ports: ['5000:5000']
         environment:
+            TESTING: testing
+            WEBHOOK_URL: http://webhook.test/
             FLASK_APP: panem.app
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            API_KEY: ${API_KEY}
         volumes:
             - ./:/opt/panem
         working_dir: /opt/panem
