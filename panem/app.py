@@ -105,7 +105,7 @@ class Projects(Resource):
             o = ProjectModel()
             o.from_dict(request.json)
             payload = o.to_dict()
-            send_event('created', **payload)
+            send_event('created', name=o.name, environment=o.environment)
             return payload
         else:
             abort(403)
@@ -125,7 +125,7 @@ class Project(Resource):
         o = ProjectModel.from_name(name)
         o.from_dict({'environment': request.json['environment']})
         payload = o.to_dict()
-        send_event('updated', **payload)
+        send_event('updated', name=o.name, environment=o.environment)
         return payload
 
 
