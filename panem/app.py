@@ -37,11 +37,28 @@ app.config['SWAGGER_UI_JSONEDITOR'] = True
 api = Api(app, authorizations=AUTHORIZATIONS, security='apikey')
 
 
+# TODO
+# Use config for this part
+# WIP
+def translate_event(event):
+    if event == 'created':
+        return "project/deploy/"
+    elif event == 'updated':
+        return "project/deploy/"
+    elif event == 'start':
+        return "project/command/"
+    elif event == 'stop':
+        return "project/command/"
+    elif event == 'restart':
+        return "project/command/"
+    else:
+        return ""
+
 def send_event(event, **payload):
     payload.update(event=event)
-    resp = session.post(WEBHOOK_URL, json=payload)
+    endpoint = translate_event(event)
+    resp = session.post("%s/%s" % (WEBHOOK_URL, endpoint), json=payload)
     return resp
-
 
 class ProjectModel(db.Model):
 
