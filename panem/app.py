@@ -37,22 +37,21 @@ app.config['SWAGGER_UI_JSONEDITOR'] = True
 api = Api(app, authorizations=AUTHORIZATIONS, security='apikey')
 
 
-# TODO
-# Use config for this part
-# WIP
+# translate events in order to trigger other services
 def translate_event(event):
-    if event == 'created':
-        return "project/deploy/"
-    elif event == 'updated':
-        return "project/deploy/"
-    elif event == 'start':
-        return "project/command/"
-    elif event == 'stop':
-        return "project/command/"
-    elif event == 'restart':
-        return "project/command/"
-    else:
-        return ""
+    # TODO
+    # Use config for this part
+    # WIP
+    mapping = {'start': 'project/command',
+                'stop': 'project/command',
+                'restart': 'project/command',
+                'created': 'project/deploy',
+                'updated': 'project/deploy'}
+
+    if event in mapping:
+        return mapping[event]
+
+    return ""
 
 def send_event(event, **payload):
     payload.update(event=event)
