@@ -12,6 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 ALLOWED_PATHS = ('/swaggerui/', '/swagger.json')
 API_KEY = os.environ['API_KEY']
 WEBHOOK_URL = os.environ['WEBHOOK_URL']
+WEBHOOK_API_KEY = os.environ['WEBHOOK_API_KEY']
 DB_URL = (
     'postgres+pg8000://{POSTGRES_USER}:{POSTGRES_PASSWORD}'
     '@postgres/{POSTGRES_DB}'
@@ -42,18 +43,19 @@ def translate_event(event):
     # TODO
     # Use config for this part
     # WIP
-    mapping = {'start': 'project/command',
-                'stop': 'project/command',
-                'restart': 'project/command',
-                'created': 'project/deploy',
-                'updated': 'project/deploy'}
+    suffix = '_run'
+    mapping = {'start': 'project/command/' + suffix,
+                'stop': 'project/command/' + suffix,
+                'restart': 'project/command/' + suffix,
+                'created': 'project/deploy/' + suffix,
+                'updated': 'project/deploy/' + suffix}
 
     return mapping.get(event)
 
 def send_event(event, **payload):
     payload.update(event=event)
     endpoint = translate_event(event)
-    resp = session.post("%s/%s" % (WEBHOOK_URL, endpoint), json=payload)
+    resp = session.post("%s/%s?X-API-KEY=%s" % (WEBHOOK_URL, endpoint, WEBHOOK_API_KEY), json=dict(variables=payload))
     return resp
 
 class ProjectModel(db.Model):

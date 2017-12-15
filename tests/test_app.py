@@ -52,7 +52,7 @@ def test_app(app):
 def test_project(app):
 
     for e in ['project/deploy', 'project/command']:
-        url = "%s/%s" % (os.environ['WEBHOOK_URL'], e)
+        url = "%s/%s/%s?X-API-KEY=%s" % (os.environ['WEBHOOK_URL'], e, '_run', os.environ['WEBHOOK_API_KEY'])
         responses.add(responses.POST, url,
                     json={'status': 'done'}, status=200)
 
