@@ -58,7 +58,7 @@ def test_project(app):
         'name': 'proj',
         'environment': [{'key': 'MY_KEY', 'value': 'value'}]
     })
-    assert resp.status_int == 200
+    assert resp.status_int == 201
     data = resp.json
     assert data['name'] == 'proj'
     assert data['environment'] == [{'key': 'MY_KEY', 'value': 'value'}]
@@ -76,7 +76,7 @@ def test_project(app):
         'name': 'proj',
         'environment': [{'key': 'MY_KEY', 'value': 'new value'}]
     })
-    assert resp.status_int == 200
+    assert resp.status_int == 201
     data = resp.json
     assert data['name'] == 'proj'
     assert data['environment'] == [{'key': 'MY_KEY', 'value': 'new value'}]

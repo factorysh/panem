@@ -106,7 +106,7 @@ class Projects(Resource):
             o.from_dict(request.json)
             payload = o.to_dict()
             send_event('created', name=o.name, environment=o.environment)
-            return payload
+            return payload, 201
         else:
             abort(403)
 
@@ -126,7 +126,7 @@ class Project(Resource):
         o.from_dict({'environment': request.json['environment']})
         payload = o.to_dict()
         send_event('updated', name=o.name, environment=o.environment)
-        return payload
+        return payload, 201
 
 
 @api.route('/projects/<name>/_start', endpoint='project_start')
@@ -141,7 +141,7 @@ class Action(Resource):
         if action not in ('start', 'stop', 'restart'):
             abort(404)
         resp = send_event(action, name=o.name)
-        return resp.json()
+        return resp.json(), resp.status_code
 
 
 class Auth:
