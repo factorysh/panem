@@ -48,10 +48,7 @@ def translate_event(event):
                 'created': 'project/deploy',
                 'updated': 'project/deploy'}
 
-    if event in mapping:
-        return mapping[event]
-
-    return ""
+    return mapping.get(event)
 
 def send_event(event, **payload):
     payload.update(event=event)
