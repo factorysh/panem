@@ -44,18 +44,24 @@ def translate_event(event):
     # Use config for this part
     # WIP
     suffix = '_run'
-    mapping = {'start': 'project/command/' + suffix,
-                'stop': 'project/command/' + suffix,
-                'restart': 'project/command/' + suffix,
+    endpoints = {'start': 'project/deploy/' + suffix,
+                'stop': 'project/deploy/' + suffix,
+                'restart': 'project/deploy/' + suffix,
                 'created': 'project/deploy/' + suffix,
                 'updated': 'project/deploy/' + suffix}
 
-    return mapping.get(event)
+    playbooks = {'start': 'command.yml',
+                'stop': 'command.yml',
+                'restart': 'command.yml',
+                'created': 'site.yml',
+                'updated': 'site.yml'}
+
+    return endpoints.get(event), playbooks.get(event)
 
 def send_event(event, **payload):
     payload.update(event=event)
-    endpoint = translate_event(event)
-    resp = session.post("%s/%s?X-API-KEY=%s" % (WEBHOOK_URL, endpoint, WEBHOOK_API_KEY), json=dict(variables=payload))
+    endpoint, pb = translate_event(event)
+    resp = session.post("%s/%s?X-API-KEY=%s" % (WEBHOOK_URL, endpoint, WEBHOOK_API_KEY), json=dict(variables=payload, playbook=pb))
     return resp
 
 class ProjectModel(db.Model):
