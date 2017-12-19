@@ -38,34 +38,22 @@ app.config['SWAGGER_UI_JSONEDITOR'] = True
 api = Api(app, authorizations=AUTHORIZATIONS, security='apikey')
 
 
-# translate events in order to trigger other services
-def translate_event(event):
-    # TODO
-    # Use config for this part
-    # WIP
-    suffix = '_run'
-    endpoints = {
-        'start': 'project/deploy/' + suffix,
-        'stop': 'project/deploy/' + suffix,
-        'restart': 'project/deploy/' + suffix,
-        'created': 'project/deploy/' + suffix,
-        'updated': 'project/deploy/' + suffix,
-    }
-    playbooks = {
-        'start': 'command.yml',
-        'stop': 'command.yml',
-        'restart': 'command.yml',
-        'created': 'site.yml',
-        'updated': 'site.yml',
-    }
-
-    return endpoints.get(event), playbooks.get(event)
+# TODO
+# Use config for this part
+# WIP
+PLAYBOOKS = {
+    'start': 'command.yml',
+    'stop': 'command.yml',
+    'restart': 'command.yml',
+    'created': 'site.yml',
+    'updated': 'site.yml',
+}
 
 
 def send_event(event, **payload):
     payload.update(event=event)
-    endpoint, pb = translate_event(event)
-    resp = session.post("{0}/{1}".format(WEBHOOK_URL, endpoint),
+    pb = PLAYBOOKS[event]
+    resp = session.post("{0}/project/deploy/_run".format(WEBHOOK_URL),
                         json=dict(variables=payload, playbook=pb),
                         headers={'X-API-KEY': WEBHOOK_API_KEY})
     return resp
