@@ -44,25 +44,32 @@ def translate_event(event):
     # Use config for this part
     # WIP
     suffix = '_run'
-    endpoints = {'start': 'project/deploy/' + suffix,
-                'stop': 'project/deploy/' + suffix,
-                'restart': 'project/deploy/' + suffix,
-                'created': 'project/deploy/' + suffix,
-                'updated': 'project/deploy/' + suffix}
-
-    playbooks = {'start': 'command.yml',
-                'stop': 'command.yml',
-                'restart': 'command.yml',
-                'created': 'site.yml',
-                'updated': 'site.yml'}
+    endpoints = {
+        'start': 'project/deploy/' + suffix,
+        'stop': 'project/deploy/' + suffix,
+        'restart': 'project/deploy/' + suffix,
+        'created': 'project/deploy/' + suffix,
+        'updated': 'project/deploy/' + suffix,
+    }
+    playbooks = {
+        'start': 'command.yml',
+        'stop': 'command.yml',
+        'restart': 'command.yml',
+        'created': 'site.yml',
+        'updated': 'site.yml',
+    }
 
     return endpoints.get(event), playbooks.get(event)
+
 
 def send_event(event, **payload):
     payload.update(event=event)
     endpoint, pb = translate_event(event)
-    resp = session.post("%s/%s?X-API-KEY=%s" % (WEBHOOK_URL, endpoint, WEBHOOK_API_KEY), json=dict(variables=payload, playbook=pb))
+    resp = session.post("{0}/{1}".format(WEBHOOK_URL, endpoint),
+                        json=dict(variables=payload, playbook=pb),
+                        headers={'X-API-KEY': WEBHOOK_API_KEY})
     return resp
+
 
 class ProjectModel(db.Model):
 
