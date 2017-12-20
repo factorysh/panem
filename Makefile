@@ -17,8 +17,8 @@ venv/$(UNAME)/bin/python: | venv/$(UNAME)
 venv/$(UNAME):
 	mkdir -p venv/$(UNAME)
 
-dev: bin/python
-	./bin/pip install -e .
+dev: venv/$(UNAME)/bin/python
+	./venv/$(UNAME)/bin/pip install -e .
 
 up: venv/lib/python3.5/site-packages/flask
 	docker-compose up -d
