@@ -3,10 +3,10 @@ PYTHON_VERSION=$(shell python3 -V | grep  -o -e "3\.\d*")
 UNAME=$(shell uname)
 
 
-venv/$(UNAME)/bin/pytest: venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask
+venv/$(UNAME)/bin/pytest: | venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask
 	./venv/$(UNAME)/bin/pip install .[test]
 
-venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask: venv/$(UNAME)/bin/python
+venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask: | venv/$(UNAME)/bin/python
 	./venv/$(UNAME)/bin/pip install .
 
 venv/$(UNAME)/bin/python: | venv/$(UNAME)
@@ -17,7 +17,7 @@ venv/$(UNAME)/bin/python: | venv/$(UNAME)
 venv/$(UNAME):
 	mkdir -p venv/$(UNAME)
 
-dev: venv/$(UNAME)/bin/python
+dev: | venv/$(UNAME)/bin/python
 	./venv/$(UNAME)/bin/pip install -e .
 
 up: venv/lib/python3.5/site-packages/flask
