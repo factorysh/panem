@@ -23,4 +23,8 @@ setup(
     extras_require={
         'test': ['pytest', 'pytest-cov', 'responses', 'webtest'],
     },
+    entry_points='''
+    [console_scripts]
+    panem-password = panem.password:main
+    ''',
 )
