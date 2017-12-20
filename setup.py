@@ -7,7 +7,7 @@ setup(
     url='https://gitlab.bearstech.com/factory/panem',
     install_requires=[
         'requests',
-        'raven',
+        'raven[flask]',
         'flask',
         'flask-restplus',
         'flask-sqlalchemy',

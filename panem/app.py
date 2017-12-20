@@ -10,6 +10,9 @@ from flask_restplus import (Api, Resource, fields)
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm.exc import NoResultFound
 
+from raven.contrib.flask import Sentry
+
+
 ALLOWED_PATHS = ('/swaggerui/', '/swagger.json')
 API_KEY = os.environ['API_KEY']
 WEBHOOK_URL = os.environ['WEBHOOK_URL']
@@ -30,6 +33,14 @@ AUTHORIZATIONS = {
 session = requests.Session()
 
 app = Flask(__name__)
+# See https://docs.sentry.io/clients/python/integrations/flask/
+if os.getenv('SENTRY_DSN'):
+    from raven.transport.threaded_requests import ThreadedRequestsHTTPTransport
+    app.config['SENTRY_CONFIG'] = {
+        'transport': ThreadedRequestsHTTPTransport,
+    }
+    sentry = Sentry(app)
+
 app.config['SQLALCHEMY_DATABASE_URI'] = DB_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
