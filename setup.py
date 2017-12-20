@@ -14,6 +14,7 @@ setup(
         'pg8000',
         'passlib',
     ],
+    licence="GPLv3",
     classifiers=[
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
