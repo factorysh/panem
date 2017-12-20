@@ -57,6 +57,7 @@ def send_event(event, **payload):
     resp = session.post(WEBHOOK_URL,
                         json=dict(variables=payload, playbook=pb),
                         headers={'X-API-KEY': WEBHOOK_API_KEY})
+    resp.raise_for_status()
     return resp
 
 
