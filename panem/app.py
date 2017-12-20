@@ -53,7 +53,7 @@ PLAYBOOKS = {
 def send_event(event, **payload):
     payload.update(event=event)
     pb = PLAYBOOKS[event]
-    resp = session.post("{0}/project/deploy/_run".format(WEBHOOK_URL),
+    resp = session.post(WEBHOOK_URL,
                         json=dict(variables=payload, playbook=pb),
                         headers={'X-API-KEY': WEBHOOK_API_KEY})
     return resp
