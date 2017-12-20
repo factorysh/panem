@@ -27,5 +27,6 @@ setup(
     entry_points='''
     [console_scripts]
     panem-password = panem.password:main
+    panem-web = panem.app:main
     ''',
 )

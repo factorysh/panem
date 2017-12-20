@@ -201,3 +201,8 @@ app.wsgi_app = Auth(app.wsgi_app)
 
 if not os.environ.get('TESTING'):
     db.create_all()
+
+
+def main():
+    app.run(host=os.getenv('LISTEN', '0.0.0.0'),
+            port=os.getenv('PORT', 5000))
