@@ -205,4 +205,4 @@ if not os.environ.get('TESTING'):
 
 def main():
     app.run(host=os.getenv('LISTEN', '0.0.0.0'),
-            port=os.getenv('PORT', 5000))
+            port=int(os.getenv('PORT', 5000)))
