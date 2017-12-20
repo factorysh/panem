@@ -53,8 +53,10 @@ def test_app(app):
 @responses.activate
 def test_project(app):
 
-    responses.add(responses.POST, os.environ['WEBHOOK_URL'],
-                  json={'status': 'done'}, status=200)
+    for e in ['project/deploy', 'project/command']:
+        url = os.environ['WEBHOOK_URL']
+        responses.add(responses.POST, url,
+                      json={'status': 'done'}, status=200)
 
     resp = app.post_json('/projects/', {
         'name': 'proj',

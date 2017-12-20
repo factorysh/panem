@@ -13,6 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 ALLOWED_PATHS = ('/swaggerui/', '/swagger.json')
 API_KEY = os.environ['API_KEY']
 WEBHOOK_URL = os.environ['WEBHOOK_URL']
+WEBHOOK_API_KEY = os.environ['WEBHOOK_API_KEY']
 DB_URL = (
     'postgres+pg8000://{POSTGRES_USER}:{POSTGRES_PASSWORD}'
     '@postgres/{POSTGRES_DB}'
@@ -38,9 +39,24 @@ app.config['SWAGGER_UI_JSONEDITOR'] = True
 api = Api(app, authorizations=AUTHORIZATIONS, security='apikey')
 
 
+# TODO
+# Use config for this part
+# WIP
+PLAYBOOKS = {
+    'start': 'command.yml',
+    'stop': 'command.yml',
+    'restart': 'command.yml',
+    'created': 'site.yml',
+    'updated': 'site.yml',
+}
+
+
 def send_event(event, **payload):
     payload.update(event=event)
-    resp = session.post(WEBHOOK_URL, json=payload)
+    pb = PLAYBOOKS[event]
+    resp = session.post(WEBHOOK_URL,
+                        json=dict(variables=payload, playbook=pb),
+                        headers={'X-API-KEY': WEBHOOK_API_KEY})
     return resp
 
 
@@ -106,7 +122,8 @@ class Projects(Resource):
             o = ProjectModel()
             o.from_dict(request.json)
             payload = o.to_dict()
-            send_event('created', name=o.name, environment=o.environment)
+            p = [dict(name=o.name)]
+            send_event('created', projects=p, environment=o.environment)
             return payload, 201
         else:
             abort(403)
@@ -126,7 +143,8 @@ class Project(Resource):
         o = ProjectModel.from_name(name)
         o.from_dict({'environment': request.json['environment']})
         payload = o.to_dict()
-        send_event('updated', name=o.name, environment=o.environment)
+        p = [dict(name=o.name)]
+        send_event('updated', projects=p, environment=o.environment)
         return payload, 201
 
 
@@ -141,7 +159,7 @@ class Action(Resource):
         action = request.path.strip('/').split('/')[-1].strip('_')
         if action not in ('start', 'stop', 'restart'):
             abort(404)
-        resp = send_event(action, name=o.name)
+        resp = send_event(action, project=dict(name=o.name))
         return resp.json(), resp.status_code
 
 

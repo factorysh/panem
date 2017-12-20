@@ -1,3 +1,5 @@
+from panem.app import db
+
 
 def main():
-    pass
+    db.create_all()
