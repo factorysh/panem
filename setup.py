@@ -12,6 +12,7 @@ setup(
         'flask-restplus',
         'flask-sqlalchemy',
         'pg8000',
+        'passlib',
     ],
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),
     extras_require={
