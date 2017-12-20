@@ -10,7 +10,7 @@ build:
             - venv
             - panem.egg-info
     script:
-        - make venv dev
+        - make docker-venv
 
 test:
     stage: test

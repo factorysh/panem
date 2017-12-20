@@ -9,7 +9,7 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     web:
-        image: bearstech/python-dev:3
+        image: python:3.5
         ports: ['5000:5000']
         environment:
             TESTING: testing
@@ -21,7 +21,7 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
             API_KEY: ${API_KEY}
         volumes:
-            - ./:/opt/panem
+            - .:/opt/panem
         working_dir: /opt/panem
 
-        command: venv/bin/python -m flask run -h 0.0.0.0 -p 5000
+        command: ./venv/Linux/bin/python -m flask run -h 0.0.0.0 -p 5000

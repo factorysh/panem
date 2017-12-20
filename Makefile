@@ -1,33 +1,45 @@
 W=/opt/panem
-
-all: venv dev test
-
-clean:
-	rm -Rf venv
-
-venv:
-	docker run --rm -u `id -u` -v ~/.cache/pip:/.cache/pip -w $(W) -v `pwd`:$(W) \
-	  	bearstech/python-dev:3 \
-   		python3 -m venv venv
+PYTHON_VERSION=$(shell python3 -V | grep  -o -e "3\.\d*")
+UNAME=$(shell uname)
 
 
-install:
-	virtualenv -p python3 venv || python3 -m venv venv
-	venv/bin/pip install -r requirements.txt
+venv/$(UNAME)/bin/pytest: venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask
+	./venv/$(UNAME)/bin/pip install .[test]
 
-dev: venv
-	docker run --rm -u `id -u` -v ~/.cache/pip:/.cache/pip -w $(W) -v `pwd`:$(W) \
-	  	bearstech/python-dev:3 \
-		venv/bin/pip install -e .[test]
+venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask: venv/$(UNAME)/bin/python
+	./venv/$(UNAME)/bin/pip install .
 
-test:
+venv/$(UNAME)/bin/python: | venv/$(UNAME)
+	python3 -m venv venv/$(UNAME)
+	./venv/$(UNAME)/bin/pip install --upgrade pip
+	./venv/$(UNAME)/bin/pip install wheel
+
+venv/$(UNAME):
+	mkdir -p venv/$(UNAME)
+
+dev: bin/python
+	./bin/pip install -e .
+
+up: venv/lib/python3.5/site-packages/flask
 	docker-compose up -d
-	docker exec panem_web_1 \
-		venv/bin/pytest --cov-report term-missing --cov panem -sxv tests
+	docker-compose ps
 
 down:
 	docker-compose down
 
-run:
-	docker-compose run web \
-		venv/bin/python -m flask run -h 0.0.0.0 -p 5000
+clean:
+	rm -rf venv bin include lib pip-selfcheck.json pyvenv.cfg
+
+docker-venv:
+	docker run --rm \
+		-u `id -u` \
+		-v ~/.cache/pip:/.cache/pip \
+		-w $(W) \
+		-v `pwd`:$(W) \
+	  	python:3.5 \
+   		make
+
+test:
+	docker-compose up -d
+	docker exec panem_web_1 \
+		./venv/Linux/bin/pytest --cov-report term-missing --cov panem -sxv tests
