@@ -157,7 +157,7 @@ class Auth:
             key = environ.get('HTTP_X_API_KEY')
             if key:
                 try:
-                    valid = pbkdf2_sha256.verify(API_KEY, key)
+                    valid = pbkdf2_sha256.verify(key, API_KEY)
                 except ValueError:
                     pass
             if not valid:

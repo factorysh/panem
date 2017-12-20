@@ -6,10 +6,7 @@ import responses
 from panem.app import app as wsgi_app
 from panem.app import db
 
-API_KEY = (
-    '$pbkdf2-sha256$29000$N2YMIWQsBWBMae09x1jrPQ$1t8iyB2A.WF/Z5JZv.'
-    'lfCIhXXN33N23OSgQYThBYRfk'
-)
+API_KEY = 'toomanysecrets'
 
 
 @pytest.yield_fixture
