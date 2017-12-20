@@ -6,6 +6,11 @@ import responses
 from panem.app import app as wsgi_app
 from panem.app import db
 
+API_KEY = (
+    '$pbkdf2-sha256$29000$N2YMIWQsBWBMae09x1jrPQ$1t8iyB2A.WF/Z5JZv.'
+    'lfCIhXXN33N23OSgQYThBYRfk'
+)
+
 
 @pytest.yield_fixture
 def app(request):
@@ -14,7 +19,7 @@ def app(request):
     wsgi_app.debug = True
     return webtest.TestApp(
         wsgi_app,
-        extra_environ={"HTTP_X_API_KEY": os.environ.get('API_KEY')})
+        extra_environ={"HTTP_X_API_KEY": API_KEY})
 
 
 def test_bad_auth():

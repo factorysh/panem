@@ -1,6 +1,7 @@
 import os
 
 import requests
+from passlib.hash import pbkdf2_sha256
 
 from flask import Flask, request, abort
 from flask_sqlalchemy import SQLAlchemy
@@ -152,7 +153,14 @@ class Auth:
     def __call__(self, environ, start_response):
         path = environ['PATH_INFO']
         if not (path == '/' or path.startswith(ALLOWED_PATHS)):
-            if environ.get('HTTP_X_API_KEY') != API_KEY:
+            valid = False
+            key = environ.get('HTTP_X_API_KEY')
+            if key:
+                try:
+                    valid = pbkdf2_sha256.verify(API_KEY, key)
+                except ValueError:
+                    pass
+            if not valid:
                 start_response("401 Unauthorized", [])
                 return [b'']
         return self.app(environ, start_response)
