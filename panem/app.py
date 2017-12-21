@@ -19,7 +19,7 @@ WEBHOOK_URL = os.environ['WEBHOOK_URL']
 WEBHOOK_API_KEY = os.environ['WEBHOOK_API_KEY']
 DB_URL = (
     'postgres+pg8000://{POSTGRES_USER}:{POSTGRES_PASSWORD}'
-    '@postgres/{POSTGRES_DB}'
+    '@{POSTGRES_HOST}/{POSTGRES_DB}'
 ).format(**os.environ)
 
 AUTHORIZATIONS = {

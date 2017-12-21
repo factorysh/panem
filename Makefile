@@ -39,7 +39,6 @@ docker-venv:
 	  	python:3.5 \
    		make
 
-test:
-	docker-compose up -d
-	docker exec panem_web_1 \
+test: up
+	docker-compose run -T --rm web \
 		./venv/Linux/bin/pytest --cov-report term-missing --cov panem -sxv tests

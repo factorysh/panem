@@ -15,6 +15,7 @@ services:
             TESTING: testing
             WEBHOOK_URL: http://webhook.test
             WEBHOOK_API_KEY: rick
+            POSTGRES_HOST: ${POSTGRES_HOST}
             POSTGRES_DB: ${POSTGRES_DB}
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
