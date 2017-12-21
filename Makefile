@@ -42,3 +42,6 @@ docker-venv:
 test: up
 	docker-compose run -T --rm web \
 		./venv/Linux/bin/pytest --cov-report term-missing --cov panem -sxv tests
+
+doc: up
+	curl -o docs/swagger.json 0.0.0.0:5000/swagger.json
