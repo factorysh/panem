@@ -6,6 +6,7 @@ setup(
     description='panemd',
     url='https://gitlab.bearstech.com/factory/panem',
     install_requires=[
+        'pyaml',
         'requests',
         'raven[flask]',
         'flask',

@@ -1,5 +1,6 @@
 import os
 
+import yaml
 import requests
 from passlib.hash import pbkdf2_sha256
 
@@ -11,6 +12,10 @@ from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm.exc import NoResultFound
 
 from raven.contrib.flask import Sentry
+
+
+with open(os.environ['PANEM_CONFIG']) as fd:
+    PANEM_CONFIG = yaml.load(fd.read())
 
 
 ALLOWED_PATHS = ('/swaggerui/', '/swagger.json')
@@ -34,7 +39,7 @@ session = requests.Session()
 
 app = Flask(__name__)
 # See https://docs.sentry.io/clients/python/integrations/flask/
-if os.getenv('SENTRY_DSN'):
+if os.getenv('SENTRY_DSN'):  # pragma: no cover
     from raven.transport.threaded_requests import ThreadedRequestsHTTPTransport
     app.config['SENTRY_CONFIG'] = {
         'transport': ThreadedRequestsHTTPTransport,
@@ -50,23 +55,13 @@ app.config['SWAGGER_UI_JSONEDITOR'] = True
 api = Api(app, authorizations=AUTHORIZATIONS, security='apikey')
 
 
-# TODO
-# Use config for this part
-# WIP
-PLAYBOOKS = {
-    'start': 'command.yml',
-    'stop': 'command.yml',
-    'restart': 'command.yml',
-    'created': 'site.yml',
-    'updated': 'site.yml',
-}
-
-
 def send_event(event, **payload):
     payload.update(event=event)
-    pb = PLAYBOOKS[event]
+    data = dict(
+        variables=payload,
+        **PANEM_CONFIG.get('events', {}).get(event, {}))
     resp = session.post(WEBHOOK_URL,
-                        json=dict(variables=payload, playbook=pb),
+                        json=data,
                         headers={'X-API-KEY': WEBHOOK_API_KEY})
     resp.raise_for_status()
     return resp
@@ -169,8 +164,6 @@ class Action(Resource):
     def post(self, name=None, **kwargs):
         o = ProjectModel.from_name(name)
         action = request.path.strip('/').split('/')[-1].strip('_')
-        if action not in ('start', 'stop', 'restart'):
-            abort(404)
         resp = send_event(action, project=dict(name=o.name))
         return resp.json(), resp.status_code
 

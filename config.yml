@@ -1,0 +1,11 @@
+events:
+    start:
+        playbook: command.yml
+    stop:
+        playbook: command.yml
+    restart:
+        playbook: command.yml
+    created:
+        playbook: site.yml
+    updated:
+        playbook: site.yml
