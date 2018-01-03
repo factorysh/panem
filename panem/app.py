@@ -119,10 +119,13 @@ class Projects(Resource):
     def get(self):
         return [i.to_dict() for i in ProjectModel.query.all()]
 
-    @api.marshal_with(project)
     @api.expect(project)
+    @api.marshal_with(project)
     def post(self, **kwargs):
-        name = request.json['name']
+        try:
+            name = request.json['name']
+        except (TypeError, KeyError):
+            abort(400, 'Invalid request')
         try:
             ProjectModel.query.filter_by(name=name).one()
         except NoResultFound:
@@ -144,11 +147,15 @@ class Project(Resource):
     def get(self, name=None, **kwargs):
         return ProjectModel.from_name(name).to_dict()
 
-    @api.marshal_with(project)
     @api.expect(project)
+    @api.marshal_with(project)
     def put(self, name=None, **kwargs):
         o = ProjectModel.from_name(name)
-        o.from_dict({'environment': request.json['environment']})
+        try:
+            data = request.json['environment']
+        except (TypeError, KeyError):
+            abort(400, 'Invalid request')
+        o.from_dict({'environment': data})
         payload = o.to_dict()
         p = [dict(name=o.name)]
         send_event('updated', projects=p, environment=o.environment)

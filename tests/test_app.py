@@ -50,6 +50,11 @@ def test_app(app):
     assert resp.status_int == 404
 
 
+def test_bad_data(app):
+    resp = app.post('/projects/', {}, status=400)
+    assert resp.status_int == 400
+
+
 @responses.activate
 def test_project(app):
 
