@@ -54,6 +54,9 @@ def test_bad_data(app):
     resp = app.post('/projects/', {}, status=400)
     assert resp.status_int == 400
 
+    resp = app.post_json('/projects/', {'environment': []}, status=400)
+    assert resp.status_int == 400
+
 
 @responses.activate
 def test_project(app):

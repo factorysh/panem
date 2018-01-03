@@ -84,6 +84,8 @@ class ProjectModel(db.Model):
         return value
 
     def from_dict(self, data):
+        if 'environment' not in data:
+            self.environment = {}
         for k, v in data.items():
             if k == 'environment':
                 v = self.env_to_dict(v)
@@ -106,8 +108,8 @@ env_key = api.model('EnvKey', {
 })
 
 project = api.model('Project', {
-    'name': fields.String,
-    'environment': fields.List(fields.Nested(env_key)),
+    'name': fields.String(required=True),
+    'environment': fields.List(fields.Nested(env_key), required=True),
 })
 
 
@@ -123,14 +125,14 @@ class Projects(Resource):
     @api.marshal_with(project)
     def post(self, **kwargs):
         try:
-            name = request.json['name']
+            name = api.payload['name']
         except (TypeError, KeyError):
             abort(400, 'Invalid request')
         try:
             ProjectModel.query.filter_by(name=name).one()
         except NoResultFound:
             o = ProjectModel()
-            o.from_dict(request.json)
+            o.from_dict(api.payload)
             payload = o.to_dict()
             p = [dict(name=o.name)]
             send_event('created', projects=p, environment=o.environment)
@@ -152,7 +154,7 @@ class Project(Resource):
     def put(self, name=None, **kwargs):
         o = ProjectModel.from_name(name)
         try:
-            data = request.json['environment']
+            data = api.payload['environment']
         except (TypeError, KeyError):
             abort(400, 'Invalid request')
         o.from_dict({'environment': data})
