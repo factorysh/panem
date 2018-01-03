@@ -7,7 +7,7 @@ venv/$(UNAME)/bin/pytest: | venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packa
 	./venv/$(UNAME)/bin/pip install .[test]
 
 venv/$(UNAME)/lib/python$(PYTHON_VERSION)/site-packages/flask: | venv/$(UNAME)/bin/python
-	./venv/$(UNAME)/bin/pip install .
+	./venv/$(UNAME)/bin/pip install -e .
 
 venv/$(UNAME)/bin/python: | venv/$(UNAME)
 	python3 -m venv venv/$(UNAME)

@@ -162,17 +162,29 @@ class Project(Resource):
         return payload, 201
 
 
+def post_action(resource, name=None, **kwargs):
+    o = ProjectModel.from_name(name)
+    action = request.path.strip('/').split('/')[-1].strip('_')
+    resp = send_event(action, project=dict(name=o.name))
+    return resp.json(), resp.status_code
+
+
 @api.route('/projects/<name>/_start', endpoint='project_start')
+@api.doc()
+class Start(Resource):
+    post = post_action
+
+
 @api.route('/projects/<name>/_stop', endpoint='project_stop')
+@api.doc()
+class Stop(Resource):
+    post = post_action
+
+
 @api.route('/projects/<name>/_restart', endpoint='project_restart')
 @api.doc()
-class Action(Resource):
-
-    def post(self, name=None, **kwargs):
-        o = ProjectModel.from_name(name)
-        action = request.path.strip('/').split('/')[-1].strip('_')
-        resp = send_event(action, project=dict(name=o.name))
-        return resp.json(), resp.status_code
+class Restart(Resource):
+    post = post_action
 
 
 class Auth:
