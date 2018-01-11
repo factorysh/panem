@@ -1,3 +1,6 @@
+environment:
+    key: value
+
 events:
     start:
         playbook: command.yml

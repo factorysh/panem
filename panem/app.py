@@ -9,7 +9,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restplus import (Api, Resource, fields)
 
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.orm.exc import NoResultFound
 
 from raven.contrib.flask import Sentry
 
@@ -56,6 +55,10 @@ api = Api(app, authorizations=AUTHORIZATIONS, security='apikey')
 
 
 def send_event(event, **payload):
+    if 'environment' in payload:
+        environment = PANEM_CONFIG.get('environment') or {}
+        environment.update(payload.pop('environment'))
+        payload['environment'] = environment
     payload.update(event=event)
     data = dict(
         variables=payload,
@@ -96,10 +99,10 @@ class ProjectModel(db.Model):
 
     @classmethod
     def from_name(cls, name):
-        try:
-            return cls.query.filter_by(name=name).one()
-        except NoResultFound:
-            abort(404)
+        o = cls.query.filter_by(name=name).first()
+        if o is not None:
+            return o
+        abort(404)
 
 
 env_key = api.model('EnvKey', {
@@ -128,9 +131,8 @@ class Projects(Resource):
             name = api.payload['name']
         except (TypeError, KeyError):
             abort(400, 'Invalid request')
-        try:
-            ProjectModel.query.filter_by(name=name).one()
-        except NoResultFound:
+        p = ProjectModel.query.filter_by(name=name).first()
+        if p is None:
             o = ProjectModel()
             o.from_dict(api.payload)
             payload = o.to_dict()
