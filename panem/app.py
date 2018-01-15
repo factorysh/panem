@@ -25,6 +25,8 @@ DB_URL = (
     'postgres+pg8000://{POSTGRES_USER}:{POSTGRES_PASSWORD}'
     '@{POSTGRES_HOST}/{POSTGRES_DB}'
 ).format(**os.environ)
+if os.environ.get('POSTGRES_SSL') == 'true':
+    DB_URL += '?ssl=true'
 
 AUTHORIZATIONS = {
     'apikey': {
