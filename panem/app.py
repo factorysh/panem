@@ -62,9 +62,10 @@ def send_event(event, **payload):
         environment.update(payload.pop('environment'))
         payload['environment'] = environment
     payload.update(event=event)
-    data = dict(
-        variables=payload,
-        **PANEM_CONFIG.get('events', {}).get(event, {}))
+    config = PANEM_CONFIG.get('events', {}).get(event, {})
+    if 'callback' in payload:
+        config['callback'] = payload.pop('callback')
+    data = dict(variables=payload, **config)
     resp = session.post(WEBHOOK_URL,
                         json=data,
                         headers={'X-API-KEY': WEBHOOK_API_KEY})
@@ -115,6 +116,11 @@ env_key = api.model('EnvKey', {
 project = api.model('Project', {
     'name': fields.String(required=True),
     'environment': fields.List(fields.Nested(env_key), required=True),
+    'callback': fields.String(),
+})
+
+callback_model = api.model('Callback', {
+    'callback': fields.String(),
 })
 
 
@@ -139,7 +145,10 @@ class Projects(Resource):
             o.from_dict(api.payload)
             payload = o.to_dict()
             p = [dict(name=o.name)]
-            send_event('created', projects=p, environment=o.environment)
+            send_event('created',
+                       projects=p,
+                       environment=o.environment,
+                       callback=api.payload.get('callback', None))
             return payload, 201
         else:
             abort(403)
@@ -164,33 +173,43 @@ class Project(Resource):
         o.from_dict({'environment': data})
         payload = o.to_dict()
         p = [dict(name=o.name)]
-        send_event('updated', projects=p, environment=o.environment)
+        send_event('updated',
+                   projects=p,
+                   environment=o.environment,
+                   callback=api.payload.get('callback', None))
         return payload, 201
 
 
 def post_action(resource, name=None, **kwargs):
     o = ProjectModel.from_name(name)
     action = request.path.strip('/').split('/')[-1].strip('_')
-    resp = send_event(action, project=dict(name=o.name))
+    if request.content_length:
+        callback = api.payload.get('callback')
+    else:
+        callback = None
+    resp = send_event(action,
+                      project=dict(name=o.name),
+                      environment=o.environment,
+                      callback=callback)
     return resp.json(), resp.status_code
 
 
 @api.route('/projects/<name>/_start', endpoint='project_start')
 @api.doc()
 class Start(Resource):
-    post = post_action
+    post = api.expect(callback_model)(post_action)
 
 
 @api.route('/projects/<name>/_stop', endpoint='project_stop')
 @api.doc()
 class Stop(Resource):
-    post = post_action
+    post = api.expect(callback_model)(post_action)
 
 
 @api.route('/projects/<name>/_restart', endpoint='project_restart')
 @api.doc()
 class Restart(Resource):
-    post = post_action
+    post = api.expect(callback_model)(post_action)
 
 
 class Auth:

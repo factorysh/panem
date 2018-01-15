@@ -99,5 +99,8 @@ def test_project(app):
     resp = app.post_json('/projects/proj/_stop')
     assert resp.status_int == 200
 
+    resp = app.post_json('/projects/proj/_stop', {'callback': 'http://'})
+    assert resp.status_int == 200
+
     resp = app.post_json('/projects/proj/_none', status=404)
     assert resp.status_int == 404
