@@ -133,7 +133,7 @@ class Projects(Resource):
         return [i.to_dict() for i in ProjectModel.query.all()]
 
     @api.expect(project)
-    @api.marshal_with(project)
+    @api.marshal_with(project, code=201)
     def post(self, **kwargs):
         try:
             name = api.payload['name']
@@ -163,7 +163,7 @@ class Project(Resource):
         return ProjectModel.from_name(name).to_dict()
 
     @api.expect(project)
-    @api.marshal_with(project)
+    @api.marshal_with(project, code=201)
     def put(self, name=None, **kwargs):
         o = ProjectModel.from_name(name)
         try:
@@ -171,13 +171,12 @@ class Project(Resource):
         except (TypeError, KeyError):
             abort(400, 'Invalid request')
         o.from_dict({'environment': data})
-        payload = o.to_dict()
         p = [dict(name=o.name)]
         send_event('updated',
                    projects=p,
                    environment=o.environment,
                    callback=api.payload.get('callback', None))
-        return payload, 201
+        return api.payload, 201
 
 
 def post_action(resource, name=None, **kwargs):
@@ -185,31 +184,36 @@ def post_action(resource, name=None, **kwargs):
     action = request.path.strip('/').split('/')[-1].strip('_')
     if request.content_length:
         callback = api.payload.get('callback')
+        payload = api.payload
     else:
         callback = None
-    resp = send_event(action,
-                      project=dict(name=o.name),
-                      environment=o.environment,
-                      callback=callback)
-    return resp.json(), resp.status_code
+        payload = {'callback': None}
+    send_event(action,
+               project=dict(name=o.name),
+               environment=o.environment,
+               callback=callback)
+    return payload, 200
 
 
 @api.route('/projects/<name>/_start', endpoint='project_start')
 @api.doc()
 class Start(Resource):
-    post = api.expect(callback_model)(post_action)
+    post = api.expect(callback_model)(
+        api.marshal_with(callback_model, code=200)(post_action))
 
 
 @api.route('/projects/<name>/_stop', endpoint='project_stop')
 @api.doc()
 class Stop(Resource):
-    post = api.expect(callback_model)(post_action)
+    post = api.expect(callback_model)(
+        api.marshal_with(callback_model, code=200)(post_action))
 
 
 @api.route('/projects/<name>/_restart', endpoint='project_restart')
 @api.doc()
 class Restart(Resource):
-    post = api.expect(callback_model)(post_action)
+    post = api.expect(callback_model)(
+        api.marshal_with(callback_model, code=200)(post_action))
 
 
 class Auth:

@@ -95,12 +95,15 @@ def test_project(app):
 
     resp = app.post_json('/projects/proj/_start')
     assert resp.status_int == 200
+    assert resp.json == {'callback': None}
 
     resp = app.post_json('/projects/proj/_stop')
     assert resp.status_int == 200
+    assert resp.json == {'callback': None}
 
     resp = app.post_json('/projects/proj/_stop', {'callback': 'http://'})
     assert resp.status_int == 200
+    assert resp.json == {'callback': 'http://'}
 
     resp = app.post_json('/projects/proj/_none', status=404)
     assert resp.status_int == 404
