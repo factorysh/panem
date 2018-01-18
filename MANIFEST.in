@@ -1,6 +1,7 @@
 graft panem
 graft tests
+graft docs
 include *.py *.yml *.sh *.adoc *.txt
-include Makefile .env Dockerfile*
+include LICENCE Makefile .env Dockerfile*
 global-exclude *.pyc *.swp
 global-exclude __pycache__
