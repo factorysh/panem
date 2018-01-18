@@ -29,5 +29,6 @@ setup(
     [console_scripts]
     panem-password = panem.password:main
     panem-web = panem.app:main
+    panem-cli = panem.cli:main
     ''',
 )
