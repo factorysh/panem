@@ -31,7 +31,7 @@ Use panem from cli:
 
 ```
 $ pip install -e git+git@github.com:factorysh/panem.git#egg=panem
-$ panem-cli -h
+$ PANEM_TOKEN=xxx panem-cli -h
 
 ```
 

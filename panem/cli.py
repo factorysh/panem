@@ -14,6 +14,7 @@ def main():
     parser.add_argument('project', help="project name")
     parser.add_argument('--host', default='panem')
     parser.add_argument('-p', '--port', type=int, default=80)
+    parser.add_argument('-c', '--callback', help="callback url")
     args = parser.parse_args()
     session = requests.Session()
     token = os.environ.get('PANEM_TOKEN')
@@ -44,7 +45,9 @@ def main():
         meth = session.post
         url += '_' + args.command
         payload = {}
-    if meth:
+    if meth is not None:
+        if args.callback:
+            payload['callback'] = args.callback
         print('\n--')
         print('{0}: {1}'.format(meth.__name__.upper(), url))
         pprint.pprint(payload)
