@@ -144,9 +144,8 @@ class Projects(Resource):
             o = ProjectModel()
             o.from_dict(api.payload)
             payload = o.to_dict()
-            p = [dict(name=o.name)]
             send_event('created',
-                       projects=p,
+                       name=o.name,
                        environment=o.environment,
                        callback=api.payload.get('callback', None))
             return payload, 201
@@ -171,9 +170,8 @@ class Project(Resource):
         except (TypeError, KeyError):
             abort(400, 'Invalid request')
         o.from_dict({'environment': data})
-        p = [dict(name=o.name)]
         send_event('updated',
-                   projects=p,
+                   name=o.name,
                    environment=o.environment,
                    callback=api.payload.get('callback', None))
         return api.payload, 201
@@ -189,7 +187,7 @@ def post_action(resource, name=None, **kwargs):
         callback = None
         payload = {'callback': None}
     send_event(action,
-               project=dict(name=o.name),
+               name=o.name,
                environment=o.environment,
                callback=callback)
     return payload, 200
