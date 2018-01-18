@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='panem',
-    version='0.1.0',
+    version='0.1.1.dev0',
     description='panemd',
     url='https://gitlab.bearstech.com/factory/panem',
     install_requires=[
